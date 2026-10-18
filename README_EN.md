@@ -63,7 +63,7 @@ The desktop app ships a CLI that may manage the `desktop` profile — `@deepseek
 set ELECTRON_RUN_AS_NODE=1
 "C:\D\software\DeepSeek Harness\DeepSeek Harness.exe" --expose-internals ^
   "C:\D\software\DeepSeek Harness\resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-desktop-host\lib\cli.js" ^
-  plugin --profile desktop add https://codeload.github.com/csuwzw/dsh-restart/tar.gz/refs/tags/v1.0.1
+  plugin --profile desktop add https://codeload.github.com/csuwzw/dsh-restart/tar.gz/refs/tags/v1.0.2
 ```
 
 Adjust the paths to your installation. **Note that `github:csuwzw/dsh-restart` requires git**: pnpm first runs
@@ -94,7 +94,7 @@ Open **Settings → Plugins** and enter this repository's URL or a local directo
 
 Copy `package.json`, `index.js`, `client.js`, `restart.ps1` and `cordis.patch.yml` into `<DSH_HOME>/profiles/desktop/node_modules/dsh-restart/`, then:
 
-1. Add `"dsh-restart": "1.0.1"` to `dependencies` in the profile's `package.json` (do not use `link:` — the desktop app rejects profile trees containing symlinks)
+1. Add `"dsh-restart": "1.0.2"` to `dependencies` in the profile's `package.json` (do not use `link:` — the desktop app rejects profile trees containing symlinks)
 2. Append `"dsh-restart"` to the end of the `dsh.profile.bundles` array
 3. Restart the app once
 
@@ -175,7 +175,7 @@ including the raw observations from every comparison run.
 | Clean-environment install | tgz installs into an empty profile, every file sameHash |
 | Uninstall residue | No profile patch layer, no registry, no services, no scheduled tasks |
 
-Release notes live in [docs/releases/](docs/releases/): currently [v1.0.1](docs/releases/v1.0.1.md) (fixes the 1.0.0 installation docs).
+Release notes live in [docs/releases/](docs/releases/): currently [v1.0.2](docs/releases/v1.0.2.md) (restart verdict now keys on the new instance).
 
 ## Known limits
 
