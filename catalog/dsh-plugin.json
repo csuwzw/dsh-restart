@@ -3,7 +3,7 @@
   "manifestVersion": "0.15",
   "id": "io.github.csuwzw.dsh-restart",
   "name": "dsh-restart",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "facets": {
     "host": {
       "entry": "index.js",
