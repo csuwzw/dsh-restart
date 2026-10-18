@@ -62,7 +62,7 @@ Windows 标题栏，紧挨着「应用」「编辑」的右侧。点击行为：
 set ELECTRON_RUN_AS_NODE=1
 "C:\D\software\DeepSeek Harness\DeepSeek Harness.exe" --expose-internals ^
   "C:\D\software\DeepSeek Harness\resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-desktop-host\lib\cli.js" ^
-  plugin --profile desktop add https://codeload.github.com/csuwzw/dsh-restart/tar.gz/refs/tags/v1.0.1
+  plugin --profile desktop add https://codeload.github.com/csuwzw/dsh-restart/tar.gz/refs/tags/v1.0.2
 ```
 
 把路径换成你自己的安装目录。**注意 `github:csuwzw/dsh-restart` 这种写法需要 git**：pnpm 会先跑
@@ -91,7 +91,7 @@ set ELECTRON_RUN_AS_NODE=1
 
 把 `package.json`、`index.js`、`client.js`、`restart.ps1`、`cordis.patch.yml` 复制到 `<DSH_HOME>/profiles/desktop/node_modules/dsh-restart/`，然后：
 
-1. 在 profile 的 `package.json` 里，`dependencies` 加入 `"dsh-restart": "1.0.1"`（不要写 `link:`——桌面端会拒绝含符号链接的 profile 树）
+1. 在 profile 的 `package.json` 里，`dependencies` 加入 `"dsh-restart": "1.0.2"`（不要写 `link:`——桌面端会拒绝含符号链接的 profile 树）
 2. 在 `dsh.profile.bundles` 数组末尾追加 `"dsh-restart"`
 3. 重启应用一次
 
@@ -169,7 +169,7 @@ Headers: content-type: application/json
 | 干净环境安装 | 空 profile 装 tgz 成功，逐文件 sameHash |
 | 卸载残留 | profile patch 层、注册表、服务、计划任务均无残留 |
 
-发版记录见 [docs/releases/](docs/releases/)：当前 [v1.0.1](docs/releases/v1.0.1.md)（修 1.0.0 的安装文档错误）。
+发版记录见 [docs/releases/](docs/releases/)：当前 [v1.0.2](docs/releases/v1.0.2.md)（重启判据改为按新实例判定）。
 
 ## 已知边界
 
