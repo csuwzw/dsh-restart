@@ -32,7 +32,7 @@
 - **Fills a gap the kernel leaves open.** The desktop app exposes no restart path a plugin can reach (see "Why not simply quit and relaunch"), so this plugin opens its own instead of asking the user to quit from the tray and double-click the icon again.
 - **Looks native for free.** The button is inserted into the open shadow root that preload leaves behind when it builds the menu bar, so its height, padding and hover background come from that shadow stylesheet's bare `button` rules — identical to Application / Edit. It follows the UI language via `<html lang>`.
 - **No console window.** The whole restart command is wrapped in `conhost.exe --headless`, so the script gets no window at all. Otherwise, with Windows Terminal as the default terminal, the script runs in a visible window, the new instance inherits that console, and the window never goes away — and closing it manually kills the new instance too.
-- **Failures are inspectable.** Every step is appended to `$DSH_HOME/logs/dsh-restart-plugin.log`, and the final step judges success by whether the Host is listening on the port again — more reliable than counting processes, because `dsh-subprocess-local`'s runner child shares the same image name.
+- **Failures are inspectable.** Every step is appended to `$DSH_HOME/logs/dsh-restart-plugin.log`, and the final step judges success by whether the new instance's Host child is listening — not by comparing port numbers, because the desktop app always starts with `--port 0` and gets a different port each run. The Host shares its image name with `dsh-subprocess-local`'s runner; the command line's `dsh-desktop-host/lib/index.js` tells them apart.
 - **Zero dependencies, no build step, pure plugin mount.** The host half imports only `node:` builtins; the browser half is a hand-written `__ModuleLoader__` bundle that never sees a bundler. Nothing patches the kernel; uninstalling means removing one bundle entry.
 
 ## What you get
@@ -108,10 +108,10 @@ The log file should show:
 2026-10-17 02:27:59.155  armed: oldPid=39848 port=19387 exe=C:\D\software\DeepSeek Harness\DeepSeek Harness.exe
 2026-10-17 02:27:59.470  taskkill /PID 39848 /T /F -> exit=0
 2026-10-17 02:28:00.332  launched: C:\D\software\DeepSeek Harness\DeepSeek Harness.exe (old alive=False)
-2026-10-17 02:28:09.738  verify: port 19387 listening=True after 9s
+2026-10-17 02:28:09.738  verify: main=40120 host=40488 listening=[58157] after 9s
 ```
 
-All four lines with `listening=True` means the full chain works. **The first install still needs one manual restart** before the button exists.
+All four lines with a non-empty `listening=[...]` means the full chain works. The ports in brackets belong to the new instance and normally differ from the old `port=`. **The first install still needs one manual restart** before the button exists.
 
 ## Layout
 

@@ -66,12 +66,35 @@ Start-Process -FilePath $Exe -WorkingDirectory (Split-Path -LiteralPath $Exe)
 $launchedAt = Get-Date
 Write-Log "launched: $Exe (old alive=$alive)"
 
-# 5) 事后确认：等 Host 重新监听端口（Host 起来才会监听），只写日志、不重试。
-#    端口在听 = 重启真的成功了，这比数进程名可靠（runner 子进程也带同样的进程名）。
-$listening = $false
+# 5) 事后确认：等这次拉起的新实例把 Host 跑起来，只写日志、不重试。
+#    桌面版固定以 --port 0 启动（Web 端口由系统分配），新实例的端口与旧实例不同，
+#    所以这里不按 $Port 判断：先找新主进程，再找它下面跑 desktop-host 的 Host 子进程，
+#    看它有没有在监听。Host 与 runner 的进程名相同，靠命令行区分。
+$exeName = Split-Path -Leaf $Exe
+$started = @()
+$newMain = $null
+$newHost = $null
+$listenPorts = @()
 $verifyDeadline = $launchedAt.AddSeconds(30)
 while ((Get-Date) -lt $verifyDeadline) {
-	if (@(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue).Count -gt 0) { $listening = $true; break }
+	$started = @(Get-CimInstance Win32_Process -Filter "Name='$($exeName.Replace("'", "''"))'" -ErrorAction SilentlyContinue |
+		Where-Object { $_.CreationDate -ge $launchedAt.AddSeconds(-2) })
+	$ids = @($started.ProcessId)
+	# 新进程树里唯一「父进程不在树内」的那个，就是这次拉起的主进程。
+	$newMain = $started | Where-Object { $ids -notcontains $_.ParentProcessId } |
+		Sort-Object CreationDate -Descending | Select-Object -First 1
+	if ($newMain -ne $null) {
+		$newHost = $started | Where-Object {
+			$_.ParentProcessId -eq $newMain.ProcessId -and $_.CommandLine -match 'dsh-desktop-host[\\/]lib[\\/]index\.js'
+		} | Select-Object -First 1
+	}
+	if ($newHost -ne $null) {
+		$listenPorts = @(Get-NetTCPConnection -OwningProcess $newHost.ProcessId -State Listen -ErrorAction SilentlyContinue |
+			ForEach-Object { $_.LocalPort })
+		if ($listenPorts.Count -gt 0) { break }
+	}
 	Start-Sleep -Milliseconds 500
 }
-Write-Log ("verify: port {0} listening={1} after {2}s" -f $Port, $listening, [int]((Get-Date) - $launchedAt).TotalSeconds)
+$mainPid = if ($newMain -ne $null) { $newMain.ProcessId } else { 0 }
+$hostPid = if ($newHost -ne $null) { $newHost.ProcessId } else { 0 }
+Write-Log ("verify: main={0} host={1} listening=[{2}] after {3}s" -f $mainPid, $hostPid, ($listenPorts -join ','), [int]((Get-Date) - $launchedAt).TotalSeconds)

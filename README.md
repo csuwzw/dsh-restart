@@ -32,7 +32,7 @@
 - **补上内核缺失的一环。** 桌面版没有任何能被插件触发的重启通路（详见「为什么不能简单地 quit + 重新启动」），这个插件自己开一条，而不是让用户手动去托盘退出再双击图标。
 - **外观自动一致。** 按钮插进的是 preload 造菜单条时留下的 open shadow root，样式由那份 shadow 样式表里的裸 `button` 规则提供，因此高度、内边距、hover 背景与「应用 / 编辑」天然相同；界面语言也跟随 `<html lang>` 切换。
 - **不弹控制台窗口。** 重启脚本整条命令包在 `conhost.exe --headless` 里，不给脚本分配任何窗口。否则默认终端为 Windows Terminal 时，脚本会跑在可见窗口里，新实例继承该控制台后窗口永不消失，手动关掉还会连带杀掉新实例。
-- **失败可查。** 每一步写进 `$DSH_HOME/logs/dsh-restart-plugin.log`，最后一步以「Host 重新监听端口」作为重启成功的判据——比数进程名可靠（`dsh-subprocess-local` 的 runner 子进程也带同样的进程名）。
+- **失败可查。** 每一步写进 `$DSH_HOME/logs/dsh-restart-plugin.log`，最后一步以「新实例的 Host 子进程开始监听」作为重启成功的判据，不比对端口号——桌面版固定以 `--port 0` 启动，每次的端口都不一样。Host 与 `dsh-subprocess-local` 的 runner 同名，靠命令行里的 `dsh-desktop-host/lib/index.js` 区分。
 - **零依赖、无构建步骤、纯插件挂载。** 宿主端只 import `node:` 内置模块；浏览器端是手写的 `__ModuleLoader__` bundle，不经打包器。不改内核，不留补丁，卸载只需移除 bundle 条目。
 
 ## 你会看到什么
@@ -105,10 +105,10 @@ set ELECTRON_RUN_AS_NODE=1
 2026-10-17 02:27:59.155  armed: oldPid=39848 port=19387 exe=C:\D\software\DeepSeek Harness\DeepSeek Harness.exe
 2026-10-17 02:27:59.470  taskkill /PID 39848 /T /F -> exit=0
 2026-10-17 02:28:00.332  launched: C:\D\software\DeepSeek Harness\DeepSeek Harness.exe (old alive=False)
-2026-10-17 02:28:09.738  verify: port 19387 listening=True after 9s
+2026-10-17 02:28:09.738  verify: main=40120 host=40488 listening=[58157] after 9s
 ```
 
-四行齐全且 `listening=True`，即完整链路可用。**首次安装必须手动重启一次**，按钮之后才存在。
+四行齐全且最后一行 `listening=[...]` 非空，即完整链路可用。方括号里是新实例的端口，与旧实例的 `port=` 不同属正常。**首次安装必须手动重启一次**，按钮之后才存在。
 
 ## 实现结构
 
