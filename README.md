@@ -161,7 +161,7 @@ Headers: content-type: application/json
 
 | 项目 | 结果 |
 | --- | --- |
-| 端到端重启 | 四步日志齐全，端口重新监听，**9 秒恢复** |
+| 端到端重启 | 四步日志齐全，新实例的 Host 重新监听，**9 秒恢复** |
 | 控制台窗口 | `conhost --headless` 下全程 **0 个**（原实现 2 个，全程都在） |
 | job object 隔离 | WMI 子进程 `IsProcessInJob` 返回 **FREE**，sessionId 与 explorer 相同 |
 | 客户端离线自测 | **25 项全部通过**（假 DOM，不需要浏览器） |
