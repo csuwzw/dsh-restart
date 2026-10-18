@@ -167,7 +167,7 @@ including the raw observations from every comparison run.
 
 | Item | Result |
 | --- | --- |
-| End-to-end restart | All four log steps present, port listening again, **back in 9 seconds** |
+| End-to-end restart | All four log steps present, the new instance's Host listening again, **back in 9 seconds** |
 | Console window | **0** throughout under `conhost --headless` (2 with the original implementation, present the whole time) |
 | Job object isolation | WMI child reports `IsProcessInJob` **FREE**, same sessionId as explorer |
 | Client offline self-test | **25 of 25 checks pass** (fake DOM, no browser) |
