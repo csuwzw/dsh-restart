@@ -34,7 +34,7 @@ $pnpm = "$env:USERPROFILE\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\pnp
 & $node $pnpm pack --pack-destination <输出目录>
 ```
 
-产物是 `dsh-restart-1.0.1.tgz`，约 10 KB，含 `package.json` / `index.js` / `client.js` /
+产物是 `dsh-restart-1.0.2.tgz`，约 10 KB，含 `package.json` / `index.js` / `client.js` /
 `restart.ps1` / `cordis.patch.yml` / `README.md` / `README_EN.md` / `icon.svg`。
 
 在空 profile 里验证安装（不需要装 DSH，只要 pnpm）：
@@ -78,7 +78,7 @@ New-Item -ItemType Directory -Force $tmp | Out-Null
 set ELECTRON_RUN_AS_NODE=1
 "<DSH 安装目录>\DeepSeek Harness.exe" --expose-internals ^
   "<DSH 安装目录>\resources\app.asar\dsh\node_modules\@deepseek-ai\dsh-desktop-host\lib\cli.js" ^
-  plugin --profile desktop add https://codeload.github.com/csuwzw/dsh-restart/tar.gz/refs/tags/v1.0.1
+  plugin --profile desktop add https://codeload.github.com/csuwzw/dsh-restart/tar.gz/refs/tags/v1.0.2
 ```
 
 `github:owner/repo` 会先让 pnpm 跑 `git ls-remote <url> HEAD` 解析 ref；机器上没有 git 时 pnpm 报
