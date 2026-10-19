@@ -105,10 +105,10 @@ set ELECTRON_RUN_AS_NODE=1
 2026-10-17 02:27:59.155  armed: oldPid=39848 port=19387 exe=C:\D\software\DeepSeek Harness\DeepSeek Harness.exe
 2026-10-17 02:27:59.470  taskkill /PID 39848 /T /F -> exit=0
 2026-10-17 02:28:00.332  launched: C:\D\software\DeepSeek Harness\DeepSeek Harness.exe (old alive=False)
-2026-10-17 02:28:09.738  verify: main=40120 host=40488 listening=[58157] after 9s
+2026-10-17 02:28:09.738  verify: main=40120 host=40488 listening=[58157] verdict=ok after 9s
 ```
 
-四行齐全且最后一行 `listening=[...]` 非空，即完整链路可用。方括号里是新实例的端口，与旧实例的 `port=` 不同属正常。**首次安装必须手动重启一次**，按钮之后才存在。
+四行齐全且最后一行 `verdict=ok`，即完整链路可用——`verdict` 看的是「新实例的 Host 进程起来了没有」，不是端口。方括号里是新实例的端口，与旧实例的 `port=` 不同属正常，**读不到时会是空 `[]`，这不影响判定**：本机实测 `netstat` 与 `Get-NetTCPConnection` 都会间歇性返回空（同一个 pid 连试五次，两次 1 行、两次 0 行、两次抛异常），所以端口只作附加信息。**首次安装必须手动重启一次**，按钮之后才存在。
 
 ## 实现结构
 
@@ -170,7 +170,7 @@ Headers: content-type: application/json
 | 干净环境安装 | 空 profile 装 tgz 成功，逐文件 sameHash |
 | 卸载残留 | profile patch 层、注册表、服务、计划任务均无残留 |
 
-发版记录见 [docs/releases/](docs/releases/)：当前 [v1.0.2](docs/releases/v1.0.2.md)（重启判据改为按新实例判定）。
+发版记录见 [docs/releases/](docs/releases/)：当前 [v1.0.2](docs/releases/v1.0.2.md)（判据改为按新实例的 Host 进程是否存活，不再看端口）。
 
 ## 已知边界
 
