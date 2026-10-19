@@ -157,7 +157,8 @@ Headers: content-type: application/json
 
 ## 验收情况
 
-逐项取证见 [验收记录](docs/verification/2026-10-17-v1.0.0.md)，含每次对照实验的原始观察值。
+逐项取证见 1.0.0 的 [验收记录](docs/verification/2026-10-17-v1.0.0.md)（含每次对照实验的原始观察值）
+与 1.0.2 的 [验收记录](docs/verification/2026-10-19-v1.0.2.md)（判据重写的取证，以及「验证进程/网络 API 必须跳出沙箱」那一节）。
 
 | 项目 | 结果 |
 | --- | --- |
