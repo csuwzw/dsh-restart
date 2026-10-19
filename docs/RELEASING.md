@@ -89,6 +89,24 @@ node <工具目录>\gh-release.mjs <token 文件> csuwzw/dsh-restart v<版本> `
 `tag_name` 用 `v<版本>`，与 `package.json` 的 `version` 对应但带 `v` 前缀。Release 正文粘贴
 `docs/releases/v<版本>.md`。
 
+**发之前先体检**（不发任何请求，只查正文会不会坏）：
+
+```powershell
+node <工具目录>\gh-release.mjs <token 文件> csuwzw/dsh-restart v<版本> --check docs/releases/v<版本>.md
+```
+
+会拦住四种坏正文：编码非法的 UTF-8、含 U+FFFD、GBK 误读的乱码字、以及「把对象当正文」（正文里
+带 `"PSPath" => ...` 这类 FileInfo 特征）。1.0.0 / 1.0.1 的 Release 正文就是被后两种弄坏的。
+
+**正文里的链接要写成绝对地址。** Release 页面不在仓库目录下，`../../README.md` 这种相对链接在
+页面上会 404。用 `https://github.com/csuwzw/dsh-restart/blob/main/<路径>`。
+
+正文写完发现要改，不用重建 tag——同一个工具能只更新正文（会回读校验）：
+
+```powershell
+node <工具目录>\gh-release.mjs <token 文件> csuwzw/dsh-restart v<版本> --update <新正文文件>
+```
+
 若已装 git，也可以走命令行：
 
 ```powershell
