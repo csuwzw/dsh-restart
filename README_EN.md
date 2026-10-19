@@ -108,10 +108,10 @@ The log file should show:
 2026-10-17 02:27:59.155  armed: oldPid=39848 port=19387 exe=C:\D\software\DeepSeek Harness\DeepSeek Harness.exe
 2026-10-17 02:27:59.470  taskkill /PID 39848 /T /F -> exit=0
 2026-10-17 02:28:00.332  launched: C:\D\software\DeepSeek Harness\DeepSeek Harness.exe (old alive=False)
-2026-10-17 02:28:09.738  verify: main=40120 host=40488 listening=[58157] after 9s
+2026-10-17 02:28:09.738  verify: main=40120 host=40488 listening=[58157] verdict=ok after 9s
 ```
 
-All four lines with a non-empty `listening=[...]` means the full chain works. The ports in brackets belong to the new instance and normally differ from the old `port=`. **The first install still needs one manual restart** before the button exists.
+All four lines with a final `verdict=ok` means the full chain works — `verdict` asks whether the new instance's Host process came up, not whether a port could be read. The ports in brackets belong to the new instance and normally differ from the old `port=`; **an empty `[]` does not fail the check**, because on this machine both `netstat` and `Get-NetTCPConnection` intermittently return nothing (the same pid, five tries in a row: 1 row, 0 rows, 1 row, 0 rows, 1 row, with CIM throwing on three of them). Ports are extra information only. **The first install still needs one manual restart** before the button exists.
 
 ## Layout
 
@@ -177,7 +177,7 @@ plus the "verifying process/network APIs must step outside the sandbox" section)
 | Clean-environment install | tgz installs into an empty profile, every file sameHash |
 | Uninstall residue | No profile patch layer, no registry, no services, no scheduled tasks |
 
-Release notes live in [docs/releases/](docs/releases/): currently [v1.0.2](docs/releases/v1.0.2.md) (restart verdict now keys on the new instance).
+Release notes live in [docs/releases/](docs/releases/): currently [v1.0.2](docs/releases/v1.0.2.md) (the verdict now keys on whether the new instance's Host process is alive, not on ports).
 
 ## Known limits
 
