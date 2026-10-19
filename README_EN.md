@@ -162,8 +162,10 @@ The script's port argument comes from the connection's **local port** (`req.sock
 
 ## Verification
 
-Per-item evidence lives in the [verification record](docs/verification/2026-10-17-v1.0.0.md),
-including the raw observations from every comparison run.
+Per-item evidence lives in the 1.0.0 [verification record](docs/verification/2026-10-17-v1.0.0.md),
+including the raw observations from every comparison run, and the 1.0.2
+[verification record](docs/verification/2026-10-19-v1.0.2.md) (evidence for the rewritten verdict,
+plus the "verifying process/network APIs must step outside the sandbox" section).
 
 | Item | Result |
 | --- | --- |
