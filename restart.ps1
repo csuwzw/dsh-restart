@@ -68,8 +68,15 @@ Write-Log "launched: $Exe (old alive=$alive)"
 
 # 5) 事后确认：等这次拉起的新实例把 Host 跑起来，只写日志、不重试。
 #    桌面版固定以 --port 0 启动（Web 端口由系统分配），新实例的端口与旧实例不同，
-#    所以这里不按 $Port 判断：先找新主进程，再找它下面跑 desktop-host 的 Host 子进程，
-#    看它有没有在监听。Host 与 runner 的进程名相同，靠命令行区分。
+#    所以这里不按 $Port 判断：先找新主进程，再找它下面跑 desktop-host 的 Host 子进程。
+#    Host 与 runner 的进程名相同，靠命令行区分。
+#
+#    **判据是「Host 进程活着」，不是「端口能枚举出来」**。端口枚举在本机实测不可靠：
+#    netstat 与 Get-NetTCPConnection 都会间歇性返回空或抛「找不到任何匹配的
+#    MSFT_NetTCPConnection 对象」——同一个 pid 连续五次尝试里两次拿到 1 行、两次拿到 0 行、
+#    两次抛异常，而进程存活判据五次全对。1.0.2 首版把端口非空当成功条件，于是出现
+#    「重启真的成功了、日志却报 listening=[]」的假阴性。端口现在只作为附加信息尽力读取，
+#    读不到就留空，不影响判定。
 $exeName = Split-Path -Leaf $Exe
 $started = @()
 $newMain = $null
@@ -89,12 +96,21 @@ while ((Get-Date) -lt $verifyDeadline) {
 		} | Select-Object -First 1
 	}
 	if ($newHost -ne $null) {
-		$listenPorts = @(Get-NetTCPConnection -OwningProcess $newHost.ProcessId -State Listen -ErrorAction SilentlyContinue |
+		# 端口：两条通道都试，都失败也无所谓，只用于日志可读性。
+		$nsPorts = @(netstat.exe -ano 2>$null | ForEach-Object {
+			$f = @(($_ -split '\s+') | Where-Object { $_ -ne '' })
+			if ($f.Count -ge 5 -and $f[3] -eq 'LISTENING' -and $f[4] -eq "$($newHost.ProcessId)") {
+				[int](($f[1] -split ':')[-1])
+			}
+		})
+		$cimPorts = @(Get-NetTCPConnection -OwningProcess $newHost.ProcessId -State Listen -ErrorAction SilentlyContinue |
 			ForEach-Object { $_.LocalPort })
-		if ($listenPorts.Count -gt 0) { break }
+		$listenPorts = @(@($nsPorts) + @($cimPorts) | Where-Object { $_ -gt 0 } | Sort-Object -Unique)
+		break
 	}
 	Start-Sleep -Milliseconds 500
 }
 $mainPid = if ($newMain -ne $null) { $newMain.ProcessId } else { 0 }
 $hostPid = if ($newHost -ne $null) { $newHost.ProcessId } else { 0 }
-Write-Log ("verify: main={0} host={1} listening=[{2}] after {3}s" -f $mainPid, $hostPid, ($listenPorts -join ','), [int]((Get-Date) - $launchedAt).TotalSeconds)
+$verdict = if ($hostPid -gt 0) { 'ok' } else { 'fail' }
+Write-Log ("verify: main={0} host={1} listening=[{2}] verdict={3} after {4}s" -f $mainPid, $hostPid, ($listenPorts -join ','), $verdict, [int]((Get-Date) - $launchedAt).TotalSeconds)
